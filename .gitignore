@@ -43,3 +43,5 @@ yarn-error.log*
 
 .contentlayer
 .vscode
+# Sentry Config File
+.sentryclirc
