@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation"
-import { allPosts } from "contentlayer/generated"
-
-import { Mdx } from "@/components/mdx-components"
+import { getPage, getPages } from '@/app/source';
+import { DocsPage, DocsBody } from 'fumadocs-ui/page';
+import { MDXContent } from '@content-collections/mdx/react';
+import defaultMdxComponents from 'fumadocs-ui/mdx';
 
 import "@/styles/mdx.css"
 import { Metadata } from "next"
@@ -20,72 +21,82 @@ interface PostPageProps {
   }
 }
 
-async function getPostFromParams(params) {
-  const slug = params?.slug?.join("/")
-  const post = allPosts.find((post) => post.slugAsParams === slug)
-
-  if (!post) {
-    null
-  }
-
-  return post
+export async function generateStaticParams() {
+  return getPages().map((page) => ({
+    slug: page.slugs,
+  }));
 }
 
-export async function generateMetadata({
-  params,
-}: PostPageProps): Promise<Metadata> {
-  const post = await getPostFromParams(params)
+export function generateMetadata({ params }: { params: { slug?: string[] } }) {
+  const page = getPage(params.slug);
 
-  if (!post) {
-    return {}
-  }
-
-  const url = env.NEXT_PUBLIC_APP_URL
-
-  const ogUrl = new URL(`${url}/api/og`)
-  ogUrl.searchParams.set("heading", post.title)
-  ogUrl.searchParams.set("type", "Blog Post")
-  ogUrl.searchParams.set("mode", "dark")
+  if (!page) notFound();
 
   return {
-    title: post.title,
-    description: post.description,
-    // authors: post.authors.map((author) => ({
-    //   name: author,
-    // })),
-    openGraph: {
-      title: post.title,
-      description: post.description,
-      type: "article",
-      url: absoluteUrl(post.slug),
-      images: [
-        {
-          url: ogUrl.toString(),
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: post.title,
-      description: post.description,
-      images: [ogUrl.toString()],
-    },
-  }
+    title: page.data.title,
+    description: page.data.description,
+  } satisfies Metadata;
 }
 
-export async function generateStaticParams(): Promise<
-  PostPageProps["params"][]
-> {
-  return allPosts.map((post) => ({
-    slug: post.slugAsParams.split("/"),
-  }))
-}
+// export async function generateMetadata(
+//   {params} :{params  : {slug : String[]}},
+// ): Promise<Metadata> {
+//   const post = await getPostFromParams(params)
 
-export default async function PostPage({ params }: PostPageProps) {
-  const post = await getPostFromParams(params)
+//   if (!post) {
+//     return {}
+//   }
+
+//   const url = env.NEXT_PUBLIC_APP_URL
+
+//   const ogUrl = new URL(`${url}/api/og`)
+//   ogUrl.searchParams.set("heading", post.title)
+//   ogUrl.searchParams.set("type", "Blog Post")
+//   ogUrl.searchParams.set("mode", "dark")
+
+//   return {
+//     title: post.title,
+//     description: post.description,
+//     // authors: post.authors.map((author) => ({
+//     //   name: author,
+//     // })),
+//     openGraph: {
+//       title: post.title,
+//       description: post.description,
+//       type: "article",
+//       url: absoluteUrl(post.slug),
+//       images: [
+//         {
+//           url: ogUrl.toString(),
+//           width: 1200,
+//           height: 630,
+//           alt: post.title,
+//         },
+//       ],
+//     },
+//     twitter: {
+//       card: "summary_large_image",
+//       title: post.title,
+//       description: post.description,
+//       images: [ogUrl.toString()],
+//     },
+//   }
+// }
+
+// export async function generateStaticParams(): Promise<
+//   PostPageProps["params"][]
+// > {
+//   return allPosts.map((post) => ({
+//     slug: post.slugAsParams.split("/"),
+//   }))
+// }
+
+export default async function Page({
+  params,
+}: {
+  params: { slug?: string[] };
+}) {
+  const post = getPage(params.slug);
 
   if (!post) {
     notFound()
@@ -95,6 +106,17 @@ export default async function PostPage({ params }: PostPageProps) {
 //     allAuthors.find(({ slug }) => slug === `/authors/${author}`)
 //   )
 
+// return (
+//   <DocsPage toc={post.data.toc} full={post.data.full}>
+//     <DocsBody>
+//       <h1>{post.data.title}</h1>
+//       <MDXContent
+//         code={post.data.body}
+//         components={{ ...defaultMdxComponents }}
+//       />
+//     </DocsBody>
+//   </DocsPage>
+// );
   return (
     <article className="container relative max-w-3xl py-6 lg:py-10">
       <Link
@@ -157,7 +179,9 @@ export default async function PostPage({ params }: PostPageProps) {
           priority
         />
       )} */}
-      <Mdx code={post.body.code} />
+   <MDXContent
+        code={post.data.body}
+      />
       <hr className="mt-12" />
       <div className="flex justify-center py-6 lg:py-10">
         <Link href="/blog" className={cn(buttonVariants({ variant: "ghost" }))}>

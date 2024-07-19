@@ -30,6 +30,21 @@ export default function HomePage() {
               deploy it.
             </div>
           </Link>
+
+          <p>
+        You can open{' '}
+        <Link
+          href="/blog"
+          target="_blank"
+          style={{
+            fontWeight: '600',
+            textDecoration: 'underline',
+          }}
+        >
+          /blog
+        </Link>{' '}
+        and see the documentation.
+      </p>
         </div>
       </div>
     </main>

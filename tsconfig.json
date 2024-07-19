@@ -34,9 +34,7 @@
       "@/*": [
         "./src/*"
       ],
-      "contentlayer/generated": [
-        "./.contentlayer/generated"
-      ]
+        "content-collections": ["./.content-collections/generated"] 
     },
     "forceConsistentCasingInFileNames": true
   },
@@ -47,8 +45,7 @@
     "**/*.tsx",
     "**/*.cjs",
     "**/*.js",
-    ".next/types/**/*.ts",
-    ".contentlayer/generated"
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

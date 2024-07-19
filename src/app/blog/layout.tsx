@@ -1,9 +1,14 @@
 import Image from "next/image"
 import Link from "next/link"
-import { allPosts } from "contentlayer/generated"
+// import { allPosts } from "contentlayer/generated"
+import { allPosts } from "content-collections";
 import { compareDesc } from "date-fns"
 
 import { formatDate } from "@/lib/utils"
+
+import { pageTree } from '../source';
+import { DocsLayout } from 'fumadocs-ui/layout';
+import type { ReactNode } from 'react';
 
 export const metadata = {
   title: "Blog",
@@ -11,7 +16,7 @@ export const metadata = {
 
 export default async function BlogPage() {
   const posts = allPosts
-    // .filter((post) => post.published)
+  //  / .filter((post) => post.published)
     .sort((a, b) => {
       return compareDesc(new Date(a.date), new Date(b.date))
     })
@@ -55,9 +60,10 @@ export default async function BlogPage() {
                   {formatDate(post.date)}
                 </p>
               )}
-              <Link href={post.slug} className="absolute inset-0">
+              <Link key={post.url}
+            href={post.url}className="absolute inset-0">
                 <span className="sr-only">View Article</span>
-              </Link>
+              </Link> 
             </article>
           ))}
         </div>
